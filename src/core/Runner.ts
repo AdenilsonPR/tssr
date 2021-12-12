@@ -1,6 +1,5 @@
 import Context from "../domain/Context";
 import IEntity from "../domain/IEntity";
-import { Status } from "../domain/Status";
 import IStrategy from "./IStrategy";
 
 export default abstract class Runner<E extends IEntity>
@@ -24,13 +23,8 @@ class AddStrategy<E extends IEntity> extends Runner<E> {
   }
 
   execute(context: Context<E>): Context<E> {
-
     if (!this.left.execute(context).getStopPropagation()) {
       this.right.execute(context);
-    }
-
-    if (context.getErrorMessages().length > 0) {
-      context.setStatus(Status.ERROR);
     }
 
     return context;
