@@ -11,9 +11,9 @@ npm install tssr
 ## Creating domain classes
 
 ```typescript
-import { Domain } from "tssr";
+import { IEntity } from "tssr";
 
-class Person extends Domain {
+class Person implements IEntity {
   private name!: string;
   private birthday!: Date;
 

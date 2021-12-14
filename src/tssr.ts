@@ -1,5 +1,5 @@
-import Runner from "./core/Runner";
+import IStrategy from "./core/IStrategy";
 import Context from "./domain/Context";
-import Domain from "./domain/Domain";
+import IEntity from "./domain/IEntity";
 
-export { Runner, Context, Domain };
+export { IStrategy, IEntity, Context };

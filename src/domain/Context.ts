@@ -1,47 +1,47 @@
 import IEntity from "./IEntity";
 
-export default class Context<E> implements IEntity {
-  private entity: E;
+export default class Context implements IEntity {
   private errorMessages: string[];
   private successMessages: string[];
-  private stopPropagation: boolean;
+  private isPropagation: boolean;
+  private isError: boolean;
 
-  constructor(entity: E) {
-    this.entity = entity;
+  constructor() {
     this.errorMessages = [];
     this.successMessages = [];
-    this.stopPropagation = false;
-  }
-
-  public getEntity() {
-    return this.entity;
-  }
-
-  public setEntity(entity: E) {
-    this.entity = entity;
+    this.isPropagation = false;
+    this.isError = false;
   }
 
   public getErrorMessages() {
     return this.errorMessages;
   }
 
-  public setErrorMessages(errorMessage: string) {
+  public addErrorMessages(errorMessage: string) {
     this.errorMessages.push(errorMessage);
+
+    if (this.errorMessages.length > 0) {
+      this.isError = true;
+    }
   }
 
   public getSuccessMessages() {
     return this.successMessages;
   }
 
-  public setSuccessMessages(successMessage: string) {
+  public addSuccessMessages(successMessage: string) {
     this.successMessages.push(successMessage);
   }
 
   public getStopPropagation() {
-    return this.stopPropagation;
+    return this.isPropagation;
   }
 
   public setStopPropagation(stopPropagation: boolean) {
-    this.stopPropagation = stopPropagation;
+    this.isPropagation = stopPropagation;
+  }
+
+  public getError() {
+    return this.isError;
   }
 }
