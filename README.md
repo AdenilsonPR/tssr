@@ -38,31 +38,29 @@ class Person implements IEntity {
 ## Creating classes that contain a business rule
 
 ```typescript
-import { Runner } from "tssr";
+import { IStrategy } from "tssr";
 
-class ValidatesName extends Runner<Person> {
-  public execute(context: Context<Person>): Context<Person> {
-    const name = context.getEntity().getName();
+class ValidatesName implements IStrategy<Person> {
+  execute(entity: Person, context: Context): void {
+    const name = entity.getName();
 
     if (!name) {
-      context.setErrorMessages("The name field is required!");
+      context.addErrorMessages("The name field is required!");
     }
-    return context;
   }
 }
 ```
 
 ```typescript
-import { Runner } from "tssr";
+import { IStrategy } from "tssr";
 
-class ValidatesBirthday extends Runner<Person> {
-  public execute(context: Context<Person>): Context<Person> {
-    const age = context.getEntity().getBirthday().getFullYear();
+class ValidatesBirthday implements IStrategy<Person> {
+  execute(entity: Person, context: Context): void {
+    const age = entity.getBirthday().getFullYear();
 
     if (age <= 1900) {
-      context.setErrorMessages("Invalid birthday date!");
+      context.addErrorMessages("Invalid birthday date!");
     }
-    return context;
   }
 }
 ```
@@ -76,20 +74,19 @@ let person = new Person();
 person.setName("Test name");
 person.setBirthday(new Date("01/01/2000"));
 
-const context = new ValidatesName()
+const context = new BuilderRunner()
+  .add(new ValidatesName())
   .add(new ValidatesBirthday())
-  .execute(new Context(person));
+  .execute(person);
 ```
 
 Result:
 
 ```
-Context {
+Result {
   entity: Person { name: 'Test name', birthday: 2000-01-01T02:00:00.000Z },
-  errorMessages: [],
-  successMessages: [],
-  stopPropagation: false,
-  status: 'ok'
+  messages: [],
+  error: false
 }
 ```
 
@@ -102,12 +99,10 @@ person.setName("");
 Result:
 
 ```
-Context {
+Result {
   entity: Person { name: '', birthday: 2000-01-01T02:00:00.000Z },
-  errorMessages: [ 'The name field is required!' ],
-  successMessages: [],
-  stopPropagation: false,
-  status: 'error'
+  messages: [ 'The name field is required!' ],
+  error: true
 }
 ```
 
@@ -121,27 +116,24 @@ person.setBirthday(new Date("01/01/1900"));
 Result:
 
 ```
-Context {
+Result {
   entity: Person { name: '', birthday: 1900-01-01T03:06:28.000Z },
-  errorMessages: [ 'The name field is required!', 'Invalid birthday date!' ],
-  successMessages: [],
-  stopPropagation: false,
-  status: 'error'
+  messages: [ 'The name field is required!', 'Invalid birthday date!' ],
+  error: true
 }
 ```
 
 If you want to stop propagation after a specific business rule, use: "context.setStopPropagation(true)"
 
 ```typescript
-class ValidatesName extends Runner<Person> {
-  public execute(context: Context<Person>): Context<Person> {
-    const name = context.getEntity().getName();
+class ValidatesName implements IStrategy<Person> {
+  execute(entity: Person, context: Context): void {
+    const name = entity.getName();
 
     if (!name) {
-      context.setErrorMessages("The name field is required!");
+      context.addErrorMessages("The name field is required!");
       context.setStopPropagation(true);
     }
-    return context;
   }
 }
 ```
@@ -154,11 +146,9 @@ person.setBirthday(new Date("01/01/1900"));
 Result:
 
 ```
-Context {
+Result {
   entity: Person { name: '', birthday: 1900-01-01T03:06:28.000Z },
-  errorMessages: [ 'The name field is required!' ],
-  successMessages: [],
-  stopPropagation: true,
-  status: 'error'
+  messages: [ 'The name field is required!' ],
+  error: true
 }
 ```
